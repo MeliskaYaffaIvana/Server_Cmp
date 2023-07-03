@@ -12,6 +12,7 @@ def create_template(request):
         # Mengubah nama_template menjadi lowercase
         nama_template = nama_template.lower()
         print (nama_template)
+        print (link_template)
         # Perintah untuk membuat images Docker dari link Docker Hub
         docker_cmd = f"docker pull {link_template} && docker tag {link_template} {nama_template}"
 
