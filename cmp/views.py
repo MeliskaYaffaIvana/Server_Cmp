@@ -8,13 +8,14 @@ def create_template(request):
         # Mengambil inputan dari permintaan klien
         nama_template = request.POST.get('nama_template')
         link_template = request.POST.get('link_template')
+        versi = request.POST.get('versi')
 
         # # Mengubah nama_template menjadi lowercase
         # nama_template = nama_template.lower()
         # print (nama_template)
         # print (link_template)
         # Perintah untuk membuat images Docker dari link Docker Hub
-        docker_cmd = f"docker pull {link_template} && docker tag {link_template} {nama_template}"
+        docker_cmd = f"docker pull {link_template} && docker tag {versi} {versi}"
 
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
@@ -73,3 +74,4 @@ def create_template(request):
 #             'message': 'Invalid request method.'
 #         }
 #         return JsonResponse(response)
+
