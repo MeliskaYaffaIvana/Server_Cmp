@@ -4,7 +4,7 @@ from django.db import connection
 import subprocess
 
 @csrf_exempt
-def create_image(request):
+def create_template(request):
     if request.method == 'POST':
         # Mengambil inputan dari permintaan klien
         nama_template = request.POST.get('nama_template')
