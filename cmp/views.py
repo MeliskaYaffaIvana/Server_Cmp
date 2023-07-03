@@ -9,8 +9,8 @@ def create_template(request):
         # Mengambil inputan dari permintaan klien
         nama_template = request.POST.get('nama_template')
         link_template = request.POST.get('link_template')
-        print(nama_template)
-        print(link_template)
+        print(request.POST)
+
 
         # Parsing the repository and tag from the link
         repository, tag = link_template.split(':')
