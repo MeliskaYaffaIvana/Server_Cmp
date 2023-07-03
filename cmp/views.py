@@ -14,7 +14,7 @@ def create_template(request):
         # nama_template = nama_template.lower()
         
         # Perintah untuk membuat images Docker dari link Docker Hub
-        docker_cmd = f"docker pull {link_template} && docker tag {link_template} {nama_template}"
+        docker_cmd = f"docker pull {link_template} "
 
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
