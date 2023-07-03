@@ -11,15 +11,15 @@ def create_template(request):
         nama_template = payload.get('nama_template')
         link_template = payload.get('link_template')
 
-        # # Parsing the repository and tag from the link
-        # repository, tag = link_template.split(':')
-        # repository = repository.lower()  # Converting repository name to lowercase
+        # Parsing the repository and tag from the link
+        repository, tag = link_template.split(':')
+        repository = repository.lower()  # Converting repository name to lowercase
 
-        # # Creating the new image reference with lowercase repository name
-        # new_image_ref = f"{repository}:{tag}"
+        # Creating the new image reference with lowercase repository name
+        new_image_ref = f"{repository}:{tag}"
 
         # Perintah untuk melakukan docker pull dengan image reference yang sudah dimodifikasi
-        docker_cmd = f"docker pull {link_template} && docker tag {link_template} {nama_template}"
+        docker_cmd = f"docker pull {new_image_ref} && docker tag {new_image_ref} {nama_template}"
 
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
