@@ -22,10 +22,10 @@ def create_template(request):
             'message': 'Template created successfully.'
         }
 
-        # Mengubah status_job menjadi 0 di database
-        with connection.cursor() as cursor:
-            update_query = "UPDATE template SET status_job = 0 WHERE  nama_template = %s"
-            cursor.execute(update_query, [nama_template])
+        # # Mengubah status_job menjadi 0 di database
+        # with connection.cursor() as cursor:
+        #     update_query = "UPDATE template SET status_job = 0 WHERE  nama_template = %s"
+        #     cursor.execute(update_query, [nama_template])
 
         return JsonResponse(response)
 
