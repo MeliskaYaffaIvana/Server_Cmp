@@ -1,16 +1,18 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import subprocess
-import subprocess
+import json
 
 @csrf_exempt
 def create_template(request):
     if request.method == 'POST':
         # Mengambil inputan dari permintaan klien
-        nama_template = request.POST.get('nama_template')
-        link_template = request.POST.get('link_template')
-        print(request.POST)
-
+        payload = json.loads(request.body)
+        nama_template = payload.get('nama_template')
+        link_template = payload.get('link_template')
+        versi = payload.get('versi')
+        print(nama_template)
+        print(link_template)
 
         # Parsing the repository and tag from the link
         repository, tag = link_template.split(':')
@@ -39,6 +41,7 @@ def create_template(request):
             'message': 'Invalid request method.'
         }
         return JsonResponse(response)
+
 
 
 # from django.http import JsonResponse
