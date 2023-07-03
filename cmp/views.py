@@ -11,6 +11,7 @@ def create_template(request):
         versi = request.POST.get('versi')
         print (nama_template)
         print (link_template)
+        print (versi)
         # # Mengubah nama_template menjadi lowercase
         nama_template = nama_template.lower()
         
