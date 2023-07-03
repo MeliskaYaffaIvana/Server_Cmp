@@ -11,7 +11,7 @@ def create_template(request):
         versi = request.POST.get('versi')
 
         # # Mengubah nama_template menjadi lowercase
-        # nama_template = nama_template.lower()
+        nama_template = nama_template.lower()
         # print (nama_template)
         # print (link_template)
         # Perintah untuk membuat images Docker dari link Docker Hub
