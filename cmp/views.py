@@ -10,11 +10,12 @@ import os
 def create_container(request):
     if request.method == 'POST':
         # Mengambil inputan dari permintaan klien
-        nama_kontainer = request.POST.get('nama_kontainer')
-        nama_template = request.POST.get('nama_template')
-        default_dir = request.POST.get('default_dir')
-        nim = request.POST.get('nim')
-        kategori = request.POST.get('kategori')
+        payload = json.loads(request.body)
+        nama_kontainer = payload.get('nama_kontainer')
+        nama_template = payload.get('nama_template')
+        default_dir = payload.get('default_dir')
+        nim = payload.get('nim')
+        kategori = payload.get('kategori')
 
         # Mendapatkan path folder user berdasarkan kategori
         user_folder = f"/nfs/{nim}/{kategori}"
