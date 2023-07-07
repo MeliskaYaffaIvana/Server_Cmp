@@ -24,7 +24,7 @@ def create_container(request):
         os.makedirs(user_folder, exist_ok=True)
 
         # Perintah untuk membuat kontainer Docker
-        docker_cmd = f"docker run -d --name {nama_kontainer} -v {user_folder}:{default_dir} {nama_template}"
+        docker_cmd = f"docker run -d --name {nama_kontainer} -p 80:80 -v {user_folder}:{default_dir} {nama_template}"
         print (docker_cmd)
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
