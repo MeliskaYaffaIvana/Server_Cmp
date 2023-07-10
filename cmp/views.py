@@ -6,6 +6,32 @@ from django.http import HttpResponse
 from django.db import connection
 import os
 
+def update_bolehkan(request, id):
+    if request.method == 'PATCH':
+        # Validasi request
+        bolehkan = request.POST.get('bolehkan', None)
+        if bolehkan is None or bolehkan not in ['0', '1']:
+            return JsonResponse({'error': 'Nilai bolehkan tidak valid'}, status=400)
+
+        # Menjalankan perintah Docker berdasarkan status bolehkan
+        if id is None:
+            return JsonResponse({'error': 'Kontainer tidak ditemukan'}, status=404)
+
+        if bolehkan == '0':
+            # Jalankan perintah Docker start
+            subprocess.run(['docker', 'start', id])
+        elif bolehkan == '1':
+            # Jalankan perintah Docker stop
+            subprocess.run(['docker', 'stop', id])
+
+        # Respon berhasil
+        return JsonResponse({'message': 'Nilai bolehkan berhasil diperbarui'}, status=200)
+    else:
+        # Metode HTTP tidak diizinkan
+        return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)
+
+
+    
 @csrf_exempt
 def create_container(request):
     if request.method == 'POST':
