@@ -21,7 +21,7 @@ def update_bolehkan(request):
         # Menjalankan perintah Docker inspect untuk mendapatkan status kontainer
         cmd = ['docker', 'inspect', '--format', '{{.State.Status}}', id]
         result = subprocess.run(cmd, capture_output=True, text=True)
-
+        print(result)
         if result.returncode != 0:
             return JsonResponse({'error': 'Gagal mendapatkan status kontainer'}, status=500)
 
