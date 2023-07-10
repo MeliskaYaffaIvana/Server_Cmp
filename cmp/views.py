@@ -39,7 +39,7 @@ def update_bolehkan(request):
             print("Eksekusi cmd_stop")
             try:
                 subprocess.run(cmd_stop, check=True)
-                print(cmd_stop)
+                print("Perintah Docker stop berhasil dijalankan:", cmd_stop)
             except subprocess.CalledProcessError as e:
                 return JsonResponse({'error': 'Gagal menjalankan perintah Docker stop', 'details': str(e)}, status=500)
 
@@ -49,7 +49,7 @@ def update_bolehkan(request):
             print("Eksekusi cmd_start")
             try:
                 subprocess.run(cmd_start, check=True)
-                print(cmd_start)
+                print("Perintah Docker start berhasil dijalankan:", cmd_start)
             except subprocess.CalledProcessError as e:
                 return JsonResponse({'error': 'Gagal menjalankan perintah Docker start', 'details': str(e)}, status=500)
 
