@@ -21,11 +21,12 @@ def update_bolehkan(request):
 
         # Menjalankan perintah Docker inspect untuk mendapatkan status kontainer
         cmd = ['docker', 'inspect', '--format', '{{.State.Status}}', id]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        print(result)
-        if result.returncode != 0:
-            return JsonResponse({'error': 'Gagal mendapatkan status kontainer'}, status=500)
-
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            print(result)
+        except subprocess.CalledProcessError as e:
+            return JsonResponse({'error': 'Gagal mendapatkan status kontainer', 'details': str(e)}, status=500)
+        
         status = result.stdout.strip()
         print(status)
         cmd_stop = None
@@ -34,14 +35,21 @@ def update_bolehkan(request):
         if bolehkan == '0' and status == 'running':
             # Jika bolehkan 0 dan status running, menjalankan perintah Docker stop
             cmd_stop = ['docker', 'stop', id]
-            subprocess.run(cmd_stop)
+            try:
+                subprocess.run(cmd_stop, check=True)
+            except subprocess.CalledProcessError as e:
+                return JsonResponse({'error': 'Gagal menjalankan perintah Docker stop', 'details': str(e)}, status=500)
             print (bolehkan)
 
         elif bolehkan == '1' and status == 'exited':
             # Jika bolehkan 1 dan status exited, menjalankan perintah Docker start
             cmd_start = ['docker', 'start', id]
-            subprocess.run(cmd_start)
+            try:
+                subprocess.run(cmd_start, check=True)
+            except subprocess.CalledProcessError as e:
+                return JsonResponse({'error': 'Gagal menjalankan perintah Docker start', 'details': str(e)}, status=500)
             print(cmd_start)
+
         print("Nilai bolehkan:", bolehkan)
         print("Nilai status:", status)
         print("Cmd stop:", cmd_stop)
@@ -51,7 +59,6 @@ def update_bolehkan(request):
     else:
         # Metode HTTP tidak diizinkan
         return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)
-
     
 @csrf_exempt
 def create_container(request):
