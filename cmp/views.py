@@ -31,6 +31,8 @@ def update_bolehkan(request):
         
         # Menentukan status kontainer berdasarkan nilai bolehkan
         print("Masuk ke if-else")
+        print("Nilai bolehkan:", bolehkan)
+        print("Nilai status:", status)
         if bolehkan == '0' and status == 'running':
             # Jika bolehkan 0 dan status running, menjalankan perintah Docker stop
             cmd_stop = ['docker', 'stop', id]
