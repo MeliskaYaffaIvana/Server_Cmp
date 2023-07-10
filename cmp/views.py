@@ -20,7 +20,7 @@ def update_bolehkan(request):
             return JsonResponse({'error': 'Data tidak lengkap'}, status=400)
 
         # Menjalankan perintah Docker inspect untuk mendapatkan status kontainer
-        cmd = ['docker', 'inspect', '--format', '{{.State.Running}}', id]
+        cmd = ['docker', 'inspect', '--format', '{{.State.Status}}', id]
         result = subprocess.run(cmd, capture_output=True, text=True)
         print(result)
         if result.returncode != 0:
@@ -28,15 +28,14 @@ def update_bolehkan(request):
 
         status = result.stdout.strip()
         print(status)
-        
         # Menentukan status kontainer berdasarkan nilai bolehkan
-        if bolehkan == '0' and status == 'true':
+        if bolehkan == '0' and status == 'running':
             # Jika bolehkan 0 dan status running, menjalankan perintah Docker stop
             cmd_stop = ['docker', 'stop', id]
             subprocess.run(cmd_stop)
             print (bolehkan)
 
-        elif bolehkan == '1' and status == 'false':
+        elif bolehkan == '1' and status == 'exited':
             # Jika bolehkan 1 dan status exited, menjalankan perintah Docker start
             cmd_start = ['docker', 'start', id]
             subprocess.run(cmd_start)
@@ -50,6 +49,7 @@ def update_bolehkan(request):
     else:
         # Metode HTTP tidak diizinkan
         return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)
+
     
 @csrf_exempt
 def create_container(request):
