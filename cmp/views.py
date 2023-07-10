@@ -14,6 +14,7 @@ def create_container(request):
         id = payload.get('id')
         nama_template = payload.get('nama_template')
         default_dir = payload.get('default_dir')
+        port_kontainer = payload.get('port_kontainer')
         port = payload.get('port')
         nim = payload.get('nim')
         kategori = payload.get('kategori')
@@ -25,7 +26,7 @@ def create_container(request):
         os.makedirs(user_folder, exist_ok=True)
 
         # Perintah untuk membuat kontainer Docker
-        docker_cmd = f"docker run -d --name {id} -p 8000:{port} -v {user_folder}:{default_dir} {nama_template}"
+        docker_cmd = f"docker run -d --name {id} -p {port_kontainer}:{port} -v {user_folder}:{default_dir} {nama_template}"
         print (docker_cmd)
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
