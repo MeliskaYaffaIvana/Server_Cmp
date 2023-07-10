@@ -23,11 +23,11 @@ def update_bolehkan(request):
         cmd = ['docker', 'inspect', '--format', '{{.State.Status}}', id]
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            print(result)
+            output = result.stdout.strip()
         except subprocess.CalledProcessError as e:
             return JsonResponse({'error': 'Gagal mendapatkan status kontainer', 'details': str(e)}, status=500)
         
-        status = result.stdout.strip()
+        status = output
         print(status)
         cmd_stop = None
         cmd_start = None
