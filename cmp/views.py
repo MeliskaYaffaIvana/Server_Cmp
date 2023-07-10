@@ -33,11 +33,13 @@ def update_bolehkan(request):
             # Jika bolehkan 0 dan status running, menjalankan perintah Docker stop
             cmd_stop = ['docker', 'stop', id]
             subprocess.run(cmd_stop)
+            print (cmd_stop)
 
         elif bolehkan == '1' and status == 'exited':
             # Jika bolehkan 1 dan status exited, menjalankan perintah Docker start
             cmd_start = ['docker', 'start', id]
             subprocess.run(cmd_start)
+            print(cmd_start)
 
         # Respon berhasil
         return JsonResponse({'message': 'Status berhasil diperbarui'}, status=200)
