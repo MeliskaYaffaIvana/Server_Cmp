@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.db import connection
 import os
 
+@csrf_exempt
 def update_bolehkan(request):
     if request.method == 'POST':
         # Menerima data dari client
