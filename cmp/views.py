@@ -30,23 +30,27 @@ def update_bolehkan(request):
         print(status)
         
         # Menentukan status kontainer berdasarkan nilai bolehkan
+        print("Masuk ke if-else")
         if bolehkan == '0' and status == 'running':
             # Jika bolehkan 0 dan status running, menjalankan perintah Docker stop
             cmd_stop = ['docker', 'stop', id]
+            print("Eksekusi cmd_stop")
             try:
                 subprocess.run(cmd_stop, check=True)
-                print(cmd_stop)  # Add this line to print the cmd_stop value
+                print(cmd_stop)
             except subprocess.CalledProcessError as e:
                 return JsonResponse({'error': 'Gagal menjalankan perintah Docker stop', 'details': str(e)}, status=500)
 
         elif bolehkan == '1' and status == 'exited':
             # Jika bolehkan 1 dan status exited, menjalankan perintah Docker start
             cmd_start = ['docker', 'start', id]
+            print("Eksekusi cmd_start")
             try:
                 subprocess.run(cmd_start, check=True)
-                print(cmd_start)  # Add this line to print the cmd_start value
+                print(cmd_start)
             except subprocess.CalledProcessError as e:
                 return JsonResponse({'error': 'Gagal menjalankan perintah Docker start', 'details': str(e)}, status=500)
+
         print("Nilai bolehkan:", bolehkan)
         print("Nilai status:", status)
         print("Cmd stop:", cmd_stop)
