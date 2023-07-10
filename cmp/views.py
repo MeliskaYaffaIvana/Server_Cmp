@@ -40,7 +40,10 @@ def update_bolehkan(request):
             cmd_start = ['docker', 'start', id]
             subprocess.run(cmd_start)
             print(cmd_start)
-
+        print("Nilai bolehkan:", bolehkan)
+        print("Nilai status:", status)
+        print("Cmd stop:", cmd_stop)
+        print("Cmd start:", cmd_start)
         # Respon berhasil
         return JsonResponse({'message': 'Status berhasil diperbarui'}, status=200)
     else:
