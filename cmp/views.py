@@ -27,7 +27,7 @@ def update_bolehkan(request):
         except subprocess.CalledProcessError as e:
             return JsonResponse({'error': 'Gagal mendapatkan status kontainer', 'details': str(e)}, status=500)
         
-        status = output
+        status = output if output else result.stderr.strip()
         print(status)
         cmd_stop = None
         cmd_start = None
