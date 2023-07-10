@@ -36,7 +36,7 @@ def update_bolehkan(request):
             # Jika bolehkan 0 dan status running, menjalankan perintah Docker stop
             cmd_stop = ['docker', 'stop', id]
             try:
-                subprocess.run(cmd_stop, check=True)
+                subprocess.check_output(cmd_stop, check=True)
             except subprocess.CalledProcessError as e:
                 return JsonResponse({'error': 'Gagal menjalankan perintah Docker stop', 'details': str(e)}, status=500)
             print (bolehkan)
