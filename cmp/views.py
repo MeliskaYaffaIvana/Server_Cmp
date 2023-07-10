@@ -10,8 +10,9 @@ import os
 def update_bolehkan(request):
     if request.method == 'POST':
         # Menerima data dari client
-        id = request.POST.get('id', None)
-        bolehkan = request.POST.get('bolehkan', None)
+        payload = json.loads(request.body)
+        id = payload.get('id', None)
+        bolehkan = payload.get('bolehkan', None)
 
         # Validasi data
         if id is None or bolehkan is None:
