@@ -6,30 +6,41 @@ from django.http import HttpResponse
 from django.db import connection
 import os
 
-def update_bolehkan(request, id):
-    if request.method == 'PATCH':
-        # Validasi request
+def update_bolehkan(request):
+    if request.method == 'POST':
+        # Menerima data dari client
+        id = request.POST.get('id', None)
         bolehkan = request.POST.get('bolehkan', None)
-        if bolehkan is None or bolehkan not in ['0', '1']:
-            return JsonResponse({'error': 'Nilai bolehkan tidak valid'}, status=400)
 
-        # Menjalankan perintah Docker berdasarkan status bolehkan
-        if id is None:
-            return JsonResponse({'error': 'Kontainer tidak ditemukan'}, status=404)
+        # Validasi data
+        if id is None or bolehkan is None:
+            return JsonResponse({'error': 'Data tidak lengkap'}, status=400)
 
-        if bolehkan == '0':
-            # Jalankan perintah Docker start
-            subprocess.run(['docker', 'start', id])
-        elif bolehkan == '1':
-            # Jalankan perintah Docker stop
-            subprocess.run(['docker', 'stop', id])
+        # Menjalankan perintah Docker inspect untuk mendapatkan status kontainer
+        cmd = ['docker', 'inspect', '--format', '{{.State.Status}}', id]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+
+        if result.returncode != 0:
+            return JsonResponse({'error': 'Gagal mendapatkan status kontainer'}, status=500)
+
+        status = result.stdout.strip()
+
+        # Menentukan status kontainer berdasarkan nilai bolehkan
+        if bolehkan == '0' and status == 'running':
+            # Jika bolehkan 0 dan status running, menjalankan perintah Docker stop
+            cmd_stop = ['docker', 'stop', id]
+            subprocess.run(cmd_stop)
+
+        elif bolehkan == '1' and status == 'exited':
+            # Jika bolehkan 1 dan status exited, menjalankan perintah Docker start
+            cmd_start = ['docker', 'start', id]
+            subprocess.run(cmd_start)
 
         # Respon berhasil
-        return JsonResponse({'message': 'Nilai bolehkan berhasil diperbarui'}, status=200)
+        return JsonResponse({'message': 'Status berhasil diperbarui'}, status=200)
     else:
         # Metode HTTP tidak diizinkan
         return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)
-
 
     
 @csrf_exempt
