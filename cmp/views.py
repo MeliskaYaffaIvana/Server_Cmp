@@ -13,7 +13,8 @@ def update_bolehkan(request):
         payload = json.loads(request.body)
         id = payload.get('id', None)
         bolehkan = payload.get('bolehkan', None)
-
+        print (id)
+        print(bolehkan)
         # Validasi data
         if id is None or bolehkan is None:
             return JsonResponse({'error': 'Data tidak lengkap'}, status=400)
@@ -26,7 +27,7 @@ def update_bolehkan(request):
             return JsonResponse({'error': 'Gagal mendapatkan status kontainer'}, status=500)
 
         status = result.stdout.strip()
-
+        print(status)
         # Menentukan status kontainer berdasarkan nilai bolehkan
         if bolehkan == '0' and status == 'running':
             # Jika bolehkan 0 dan status running, menjalankan perintah Docker stop
