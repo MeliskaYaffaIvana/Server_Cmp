@@ -20,36 +20,28 @@ def update_bolehkan(request):
             return JsonResponse({'error': 'Data tidak lengkap'}, status=400)
 
         # Menjalankan perintah Docker inspect untuk mendapatkan status kontainer
-        cmd = ['docker', 'inspect', '--format', '{{.State.Status}}', id]
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            output = result.stdout.strip()
-        except subprocess.CalledProcessError as e:
-            return JsonResponse({'error': 'Gagal mendapatkan status kontainer', 'details': str(e)}, status=500)
-        
-        status = output if output else result.stderr.strip()
+        cmd = ['docker', 'inspect', '--format', '{{.State.Running}}', id]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        print(result)
+        if result.returncode != 0:
+            return JsonResponse({'error': 'Gagal mendapatkan status kontainer'}, status=500)
+
+        status = result.stdout.strip()
         print(status)
         cmd_stop = None
         cmd_start = None
         # Menentukan status kontainer berdasarkan nilai bolehkan
-        if bolehkan == '0' and status == 'running':
+        if bolehkan == '0' and status == 'true':
             # Jika bolehkan 0 dan status running, menjalankan perintah Docker stop
             cmd_stop = ['docker', 'stop', id]
-            try:
-                subprocess.check_output(cmd_stop, check=True)
-            except subprocess.CalledProcessError as e:
-                return JsonResponse({'error': 'Gagal menjalankan perintah Docker stop', 'details': str(e)}, status=500)
+            subprocess.run(cmd_stop)
             print (bolehkan)
 
-        elif bolehkan == '1' and status == 'exited':
+        elif bolehkan == '1' and status == 'false':
             # Jika bolehkan 1 dan status exited, menjalankan perintah Docker start
             cmd_start = ['docker', 'start', id]
-            try:
-                subprocess.run(cmd_start, check=True)
-            except subprocess.CalledProcessError as e:
-                return JsonResponse({'error': 'Gagal menjalankan perintah Docker start', 'details': str(e)}, status=500)
+            subprocess.run(cmd_start)
             print(cmd_start)
-
         print("Nilai bolehkan:", bolehkan)
         print("Nilai status:", status)
         print("Cmd stop:", cmd_stop)
