@@ -5,6 +5,7 @@ import json
 from django.http import HttpResponse
 from django.db import connection
 import os
+import time
 
 @csrf_exempt
 def update_bolehkan(request):
@@ -44,6 +45,10 @@ def update_bolehkan(request):
                 print("Perintah Docker stop berhasil dijalankan:", cmd_stop)
             except subprocess.CalledProcessError as e:
                 return JsonResponse({'error': 'Gagal menjalankan perintah Docker stop', 'details': str(e)}, status=500)
+            
+            # Tambahkan penundaan sebelum mencetak cmd_stop
+            time.sleep(1)
+            print("Cmd stop:", cmd_stop)
 
         elif bolehkan == '1' and status == 'exited':
             # Jika bolehkan 1 dan status exited, menjalankan perintah Docker start
