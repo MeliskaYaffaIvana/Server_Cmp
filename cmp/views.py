@@ -20,18 +20,6 @@ def update_bolehkan(request):
         if id is None or bolehkan is None:
             return JsonResponse({'error': 'Data tidak lengkap'}, status=400)
         
-         # Menjalankan perintah Docker ps untuk mendapatkan daftar kontainer yang sedang berjalan
-        cmd_ps = ['docker', 'ps']
-        try:
-            result_ps = subprocess.run(cmd_ps, capture_output=True, text=True)
-            if result_ps.returncode != 0:
-                return JsonResponse({'error': 'Gagal mendapatkan daftar kontainer'}, status=500)
-        except subprocess.CalledProcessError as e:
-            return JsonResponse({'error': 'Gagal menjalankan perintah Docker ps', 'details': str(e)}, status=500)
-
-        output_ps = result_ps.stdout.strip()
-        print("Hasil perintah Docker ps:")
-        print(output_ps)
         
         # Menjalankan perintah Docker inspect untuk mendapatkan status kontainer
         cmd = ['docker', 'inspect', '--format', '{{.State.Status}}', id]
@@ -50,7 +38,7 @@ def update_bolehkan(request):
         cmd_stop = ['docker', 'stop', id]
         cmd_start = ['docker', 'start', id]
 
-        if bolehkan == '0' and status == 'running':
+        if bolehkan == 0 and status == 'running':
             # Jika bolehkan 0 dan status running, menjalankan perintah Docker stop
             try:
                 subprocess.run(cmd_stop, check=True)
