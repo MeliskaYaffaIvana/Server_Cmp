@@ -29,7 +29,6 @@ def update_bolehkan(request):
         print(status)
         
         # Menentukan status kontainer berdasarkan nilai bolehkan
-        print("Masuk ke if-else")
         print("Nilai bolehkan:", bolehkan)
         print("Nilai status:", status)
         cmd_stop = ['docker', 'stop', id]
