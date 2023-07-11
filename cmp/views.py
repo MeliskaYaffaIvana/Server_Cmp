@@ -123,3 +123,38 @@ def create_template(request):
         }
         return JsonResponse(response)
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def update_template(request):
+    if request.method == 'POST':
+        # Menerima data dari client
+        payload = json.loads(request.body)
+        nama_template = payload.get('nama_template')
+
+        # Menemukan repository images berdasarkan nama_template
+        cmd = ['docker', 'images', '--format', '{{.Repository}}']
+        result = subprocess.run(cmd, capture_output=True, text=True)
+
+        # Memeriksa kesesuaian repository images dengan nama_template
+        if nama_template not in result.stdout.split('\n'):
+            # Mencari ID template berdasarkan nama_repository
+            cmd_id = ['docker', 'images', '--format', '{{.ID}}', nama_template]
+            result_id = subprocess.run(cmd_id, capture_output=True, text=True)
+
+            # Mendapatkan nama repository images yang sesuai dengan ID template
+            cmd_repo_name = ['docker', 'inspect', '--format', '{{index .RepoTags 0}}', result_id.stdout.strip()]
+            result_repo_name = subprocess.run(cmd_repo_name, capture_output=True, text=True)
+
+            # Membandingkan nama repository images dengan nama_template
+            if result_repo_name.stdout.strip() != nama_template or result_id.stdout.strip() != nama_template:
+                # Jalankan perintah hapus template sesuai dengan ID template
+                cmd_hapus = ['docker', 'rmi', result_id.stdout.strip()]
+                subprocess.run(cmd_hapus, capture_output=True, text=True)
+
+        # Respon sukses
+        return JsonResponse({'message': 'Data diterima'}, status=200)
+    else:
+        # Metode HTTP tidak diizinkan
+        return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)
