@@ -22,5 +22,6 @@ urlpatterns = [
     # path('admin/', admin.site.urls),
     path('api/create_template/', views.create_template, name='create_template'),
     path('api/create_container/', views.create_container, name='create_container'),
-    path('api/update_bolehkan_container/', views.update_bolehkan, name='update_bolehkanr'),
+    path('api/update_bolehkan_container/', views.update_bolehkan, name='update_bolehkan'),
+     path('api/hapus_template/', views.hapus_template, name='update_bolehkanr'),
 ]
