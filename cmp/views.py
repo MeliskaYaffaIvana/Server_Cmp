@@ -12,14 +12,27 @@ def update_bolehkan(request):
     if request.method == 'POST':
         # Menerima data dari client
         payload = json.loads(request.body)
-        id = payload.get('id', None)
-        bolehkan = payload.get('bolehkan', None)
+        id = payload.get('id')
+        bolehkan = payload.get('bolehkan')
         print (id)
         print(bolehkan)
         # Validasi data
         if id is None or bolehkan is None:
             return JsonResponse({'error': 'Data tidak lengkap'}, status=400)
+        
+         # Menjalankan perintah Docker ps untuk mendapatkan daftar kontainer yang sedang berjalan
+        cmd_ps = ['docker', 'ps']
+        try:
+            result_ps = subprocess.run(cmd_ps, capture_output=True, text=True)
+            if result_ps.returncode != 0:
+                return JsonResponse({'error': 'Gagal mendapatkan daftar kontainer'}, status=500)
+        except subprocess.CalledProcessError as e:
+            return JsonResponse({'error': 'Gagal menjalankan perintah Docker ps', 'details': str(e)}, status=500)
 
+        output_ps = result_ps.stdout.strip()
+        print("Hasil perintah Docker ps:")
+        print(output_ps)
+        
         # Menjalankan perintah Docker inspect untuk mendapatkan status kontainer
         cmd = ['docker', 'inspect', '--format', '{{.State.Status}}', id]
         result = subprocess.run(cmd, capture_output=True, text=True)
