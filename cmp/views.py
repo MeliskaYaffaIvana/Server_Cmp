@@ -132,27 +132,24 @@ def delete_template(request):
         nama_template = payload.get('nama_template')
 
         # Menemukan repository images berdasarkan nama_template
-        cmd = 'docker images --format "{{.Repository}}"'
+        cmd = 'docker images | grep "{}" | awk \'{{print $3}}\''.format(nama_template)
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-        print (result)
+
         # Memeriksa kesesuaian repository images dengan nama_template
-        if nama_template not in result.stdout.split('\n'):
-            # Mencari ID template berdasarkan nama_repository
-            cmd_id = 'docker images --format "{{.ID}}" {}'.format(nama_template)
-            result_id = subprocess.run(cmd_id, shell=True, capture_output=True, text=True)
-            print (result_id)
+        if result.stdout.strip() != '':
+            # Mendapatkan ID template yang sesuai
+            id_template = result.stdout.strip()
 
             # Mendapatkan nama repository images yang sesuai dengan ID template
-            cmd_repo_name = 'docker inspect --format "{{index .RepoTags 0}}" {}'.format(result_id.stdout.strip())
+            cmd_repo_name = 'docker inspect --format "{{index .RepoTags 0}}" {}'.format(id_template)
             result_repo_name = subprocess.run(cmd_repo_name, shell=True, capture_output=True, text=True)
-            print (result_repo_name)
 
             # Membandingkan nama repository images dengan nama_template
-            if result_repo_name.stdout.strip() != nama_template or result_id.stdout.strip() != nama_template:
+            if result_repo_name.stdout.strip() != nama_template:
                 # Jalankan perintah hapus template sesuai dengan ID template
-                cmd_hapus = 'docker rmi {}'.format(result_id.stdout.strip())
+                cmd_hapus = 'docker rmi {}'.format(id_template)
                 subprocess.run(cmd_hapus, shell=True, capture_output=True, text=True)
-            print (cmd_hapus)
+
         # Respon sukses
         return JsonResponse({'message': 'Data diterima'}, status=200)
     else:
