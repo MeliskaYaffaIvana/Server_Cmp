@@ -127,7 +127,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
-def hapus_template(request):
+def delete_template(request):
     if request.method == 'POST':
         # Menerima data dari client
         payload = json.loads(request.body)
