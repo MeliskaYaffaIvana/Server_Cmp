@@ -3,9 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 import subprocess
 import json
 from django.http import HttpResponse
-from django.db import connection
 import os
-import time
 
 @csrf_exempt
 def update_bolehkan(request):
@@ -14,8 +12,7 @@ def update_bolehkan(request):
         payload = json.loads(request.body)
         id = payload.get('id')
         bolehkan = payload.get('bolehkan')
-        print (id)
-        print(bolehkan)
+
         # Validasi data
         if id is None or bolehkan is None:
             return JsonResponse({'error': 'Data tidak lengkap'}, status=400)
@@ -24,7 +21,7 @@ def update_bolehkan(request):
         # Menjalankan perintah Docker inspect untuk mendapatkan status kontainer
         cmd = ['docker', 'inspect', '--format', '{{.State.Status}}', id]
         result = subprocess.run(cmd, capture_output=True, text=True)
-        print(result)
+
         if result.returncode != 0:
             return JsonResponse({'error': 'Gagal mendapatkan status kontainer'}, status=500)
 
@@ -46,7 +43,7 @@ def update_bolehkan(request):
             except subprocess.CalledProcessError as e:
                 return JsonResponse({'error': 'Gagal menjalankan perintah Docker stop', 'details': str(e)}, status=500)
 
-        elif bolehkan == '1' and status == 'exited':
+        elif bolehkan == 1 and status == 'exited':
             # Jika bolehkan 1 dan status exited, menjalankan perintah Docker start
             try:
                 subprocess.run(cmd_start, check=True)
@@ -54,10 +51,6 @@ def update_bolehkan(request):
             except subprocess.CalledProcessError as e:
                 return JsonResponse({'error': 'Gagal menjalankan perintah Docker start', 'details': str(e)}, status=500)
 
-        print("Nilai bolehkan:", bolehkan)
-        print("Nilai status:", status)
-        print("Cmd stop:", cmd_stop)
-        print("Cmd start:", cmd_start)
         # Respon berhasil
         return JsonResponse({'message': 'Status berhasil diperbarui'}, status=200)
     else:
