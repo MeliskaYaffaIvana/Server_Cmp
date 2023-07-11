@@ -125,7 +125,6 @@ def create_template(request):
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
 @csrf_exempt
 def delete_template(request):
     if request.method == 'POST':
@@ -134,24 +133,24 @@ def delete_template(request):
         nama_template = payload.get('nama_template')
 
         # Menemukan repository images berdasarkan nama_template
-        cmd = ['docker', 'images', '--format', '{{.Repository}}']
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        cmd = 'docker images --format "{{.Repository}}"'
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
         # Memeriksa kesesuaian repository images dengan nama_template
         if nama_template not in result.stdout.split('\n'):
             # Mencari ID template berdasarkan nama_repository
-            cmd_id = ['docker', 'images', '--format', '{{.ID}}', nama_template]
-            result_id = subprocess.run(cmd_id, capture_output=True, text=True)
+            cmd_id = 'docker images --format "{{.ID}}" {}'.format(nama_template)
+            result_id = subprocess.run(cmd_id, shell=True, capture_output=True, text=True)
 
             # Mendapatkan nama repository images yang sesuai dengan ID template
-            cmd_repo_name = ['docker', 'inspect', '--format', '{{index .RepoTags 0}}', result_id.stdout.strip()]
-            result_repo_name = subprocess.run(cmd_repo_name, capture_output=True, text=True)
+            cmd_repo_name = 'docker inspect --format "{{index .RepoTags 0}}" {}'.format(result_id.stdout.strip())
+            result_repo_name = subprocess.run(cmd_repo_name, shell=True, capture_output=True, text=True)
 
             # Membandingkan nama repository images dengan nama_template
             if result_repo_name.stdout.strip() != nama_template or result_id.stdout.strip() != nama_template:
                 # Jalankan perintah hapus template sesuai dengan ID template
-                cmd_hapus = ['docker', 'rmi', result_id.stdout.strip()]
-                subprocess.run(cmd_hapus, capture_output=True, text=True)
+                cmd_hapus = 'docker rmi {}'.format(result_id.stdout.strip())
+                subprocess.run(cmd_hapus, shell=True, capture_output=True, text=True)
 
         # Respon sukses
         return JsonResponse({'message': 'Data diterima'}, status=200)
