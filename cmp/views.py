@@ -134,21 +134,25 @@ def delete_template(request):
         # Menemukan repository images berdasarkan nama_template
         cmd = 'docker images | grep "{}" | awk \'{{print $3}}\''.format(nama_template)
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        print(result)
 
         # Memeriksa kesesuaian repository images dengan nama_template
         if result.stdout.strip() != '':
             # Mendapatkan ID template yang sesuai
             id_template = result.stdout.strip()
+            print(id_template)
 
             # Mendapatkan nama repository images yang sesuai dengan ID template
             cmd_repo_name = 'docker inspect --format "{{index .RepoTags 0}}" {}'.format(id_template)
             result_repo_name = subprocess.run(cmd_repo_name, shell=True, capture_output=True, text=True)
+            print(result_repo_name)
 
             # Membandingkan nama repository images dengan nama_template
             if result_repo_name.stdout.strip() != nama_template:
                 # Jalankan perintah hapus template sesuai dengan ID template
                 cmd_hapus = 'docker rmi {}'.format(id_template)
                 subprocess.run(cmd_hapus, shell=True, capture_output=True, text=True)
+                print(cmd_hapus)
 
         # Respon sukses
         return JsonResponse({'message': 'Data diterima'}, status=200)
