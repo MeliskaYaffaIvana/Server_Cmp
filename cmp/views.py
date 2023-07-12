@@ -134,7 +134,8 @@ def delete_template(request):
         # Menemukan repository images dengan tag "latest" yang tidak sesuai dengan nama_template
         cmd = 'docker images --format "{{.ID}}:{{.Repository}}:{{.Tag}}" --filter "reference=:latest"'
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-
+        print(cmd)
+        print(result)
         # Memeriksa kesesuaian repository dengan nama_template
         if result.stdout.strip():
             for line in result.stdout.strip().split('\n'):
@@ -143,6 +144,10 @@ def delete_template(request):
                     # Menghapus repository dengan ID yang tidak sesuai
                     cmd_hapus = ['docker', 'rmi', repo_id]
                     subprocess.run(cmd_hapus, capture_output=True, text=True)  
+                    print(repo_name)
+                    print(repo_id)
+                    print(repo_tag)
+                    print(cmd_hapus)
         
         # Respon sukses
         return JsonResponse({'message': 'Data diterima'}, status=200)
