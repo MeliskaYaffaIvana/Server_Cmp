@@ -105,12 +105,12 @@ def create_template(request):
         # # Perintah untuk melakukan docker pull dengan image reference yang sudah dimodifikasi
         # docker_cmd = f"docker pull {new_image_ref} && docker tag {new_image_ref} {nama_template}"
         # Perintah untuk melakukan docker pull tanpa menyertakan tag khusus
-        docker_pull_cmd = f"docker pull {link_template}"
+        docker_pull_cmd = f"docker pull {new_image_ref}"
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_pull_cmd, shell=True)
 
         # Perintah untuk memberi nama repository sesuai dengan nama_template
-        docker_tag_cmd = f"docker tag {link_template} {repository}:{nama_template}"
+        docker_tag_cmd = f"docker tag {new_image_ref} {nama_template}"
 
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_tag_cmd, shell=True)
