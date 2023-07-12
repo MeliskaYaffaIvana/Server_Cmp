@@ -102,21 +102,11 @@ def create_template(request):
         # Creating the new image reference with lowercase repository name
         new_image_ref = f"{repository}:{tag}"
 
-        # # Perintah untuk melakukan docker pull dengan image reference yang sudah dimodifikasi
-        # docker_cmd = f"docker pull {new_image_ref} && docker tag {new_image_ref} {nama_template}"
-        # Perintah untuk melakukan docker pull tanpa menyertakan tag khusus
-        docker_pull_cmd = f"docker pull {new_image_ref}"
-        # Menjalankan perintah menggunakan subprocess
-        subprocess.run(docker_pull_cmd, shell=True)
-
-        # Perintah untuk memberi nama repository sesuai dengan nama_template
-        docker_tag_cmd = f"docker tag {new_image_ref} {nama_template}"
+        # Perintah untuk melakukan docker pull dengan image reference yang sudah dimodifikasi
+        docker_cmd = f"docker pull {new_image_ref} && docker tag {new_image_ref} {nama_template}"
 
         # Menjalankan perintah menggunakan subprocess
-        subprocess.run(docker_tag_cmd, shell=True)
-
-        # # Menjalankan perintah menggunakan subprocess
-        # subprocess.run(docker_cmd, shell=True)
+        subprocess.run(docker_cmd, shell=True)
 
         # Mengirimkan respon ke klien
         response = {
@@ -153,13 +143,10 @@ def delete_template(request):
         for image in images:
             repo_tag = image.split(':')
             repository = repo_tag[0]
-            tag = repo_tag[1]
 
-            if repository == nama_template:
-                continue  # Melanjutkan ke iterasi berikutnya jika nama repository sama dengan nama_template
-
-            cmd_delete = f'docker rmi {repository}:{tag}'
-            subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
+            if repository != nama_template:
+                cmd_delete = f'docker rmi {image}'
+                subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
 
         return JsonResponse({'message': 'Template deletion completed'}, status=200)
 
@@ -168,42 +155,29 @@ def delete_template(request):
 
 
 
-# @csrf_exempt
-# def delete_kontainer(request):
-#     if request.method == 'POST':
-#         # Menerima data dari client
-#         payload = json.loads(request.body)
-#         id = payload.get('id')
+def delete_container(request):
+    if request.method == 'POST':
+        payload = request.POST
+        id_kontainer = payload.get('id_kontainer')
 
-#         # Menemukan repository images berdasarkan nama_template
-#         cmd = 'docker images --format "{{.Repository}}"'
-#         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-#         print(result)
+        # Mengambil daftar kontainer dari server
+        cmd_containers = 'docker ps -a --format "{{.ID}}:{{.Names}}"'
+        result_containers = subprocess.run(cmd_containers, shell=True, capture_output=True, text=True)
 
-#         # Memeriksa kesesuaian repository images dengan nama_template
-#         if nama_template not in result.stdout.split('\n'):
-#             # Mencari ID template berdasarkan nama_repository
-#             cmd_id = 'docker images --format "{{.ID}}" | grep "{}"'.format(nama_template)
-#             result_id = subprocess.run(cmd_id, shell=True, capture_output=True, text=True)
-#             print(result_id)
+        if result_containers.returncode != 0:
+            return JsonResponse({'error': 'Failed to get containers'})
 
-#             # Memeriksa apakah output result_id.stdout berisi ID template yang valid
-#             if result_id.stdout.strip() != '':
-#                 # Mendapatkan ID template yang sesuai
-#                 id_template = result_id.stdout.strip()
+        containers = result_containers.stdout.strip().split('\n')
 
-#                 # Mendapatkan nama repository images yang sesuai dengan ID template
-#                 cmd_repo_name = 'docker inspect --format "{{index .RepoTags 0}}" {}'.format(id_template)
-#                 result_repo_name = subprocess.run(cmd_repo_name, shell=True, capture_output=True, text=True)
-#                 print(result_repo_name)
+        for container in containers:
+            container_id, container_name = container.split(':')
 
-#                 # Menghapus template jika ada kesesuaian yang tidak sesuai dengan database
-#                 if result_repo_name.stdout.strip() != nama_template and result_id.stdout.strip() not in result_repo_name.stdout.strip():
-#                     # Jalankan perintah hapus template sesuai dengan ID template
-#                     cmd_hapus = ['docker', 'rmi', result_id.stdout.strip()]
-#                     subprocess.run(cmd_hapus, capture_output=True, text=True)
-#         # Respon sukses
-#         return JsonResponse({'message': 'Data diterima'}, status=200)
-#     else:
-#         # Metode HTTP tidak diizinkan
-#         return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)
+            if container_name != id_kontainer:
+                # Hapus kontainer dengan ID yang berbeda
+                cmd_delete = f'docker rm {container_id}'
+                subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
+
+        return JsonResponse({'message': 'Container deletion completed'})
+
+    else:
+         return JsonResponse({'error': 'Invalid request method'})
