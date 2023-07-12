@@ -140,15 +140,15 @@ def delete_template(request):
             for line in result.stdout.strip().split('\n'):
                 repo_id, repo_name, repo_tag = line.split(':')
                 if repo_name != nama_template:
-                    # Menghapus repository dengan ID yang ditemukan
-                    cmd_hapus = ['docker', 'rmi', repo_id]
+                    # Menghapus repository dengan nama repository dan tag yang ditemukan
+                    repo_name_tag = f'{repo_name}:{repo_tag}'
+                    cmd_hapus = ['docker', 'rmi', repo_name_tag]
                     subprocess.run(cmd_hapus, capture_output=True, text=True)
 
         # Respon sukses
         return JsonResponse({'message': 'Data diterima'}, status=200)
     else:
         # Metode HTTP tidak diizinkan
-        return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)
 
 # @csrf_exempt
 # def delete_kontainer(request):
