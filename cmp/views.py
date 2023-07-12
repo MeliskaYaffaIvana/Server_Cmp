@@ -130,28 +130,23 @@ def delete_template(request):
         # Menerima data dari client
         payload = json.loads(request.body)
         nama_template = payload.get('nama_template')
-        print("nama temp",nama_template)
-        # Menemukan repository images berdasarkan nama_template
-        cmd = 'docker images --format "{{.Repository}}:{{.Tag}}"'
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-        print("result", result)
 
-        # Memisahkan repository dan tag
-        repo_tags = result.stdout.strip().split('\n')
-        repos = [rt.split(':')[0] for rt in repo_tags]
+        # Menemukan repository images berdasarkan nama_template
+        cmd = 'docker images --format "{{.Repository}}"'
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
         # Memeriksa kesesuaian repository images dengan nama_template
-        for repo in repos:
+        for repo in result.stdout.strip().split('\n'):
             if repo != nama_template:
-                # Menghapus template berdasarkan nama repository
+                # Jalankan perintah hapus template sesuai dengan repository yang tidak sesuai
                 cmd_hapus = ['docker', 'rmi', repo]
                 subprocess.run(cmd_hapus, capture_output=True, text=True)
+
         # Respon sukses
         return JsonResponse({'message': 'Data diterima'}, status=200)
     else:
         # Metode HTTP tidak diizinkan
-        return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)
-    
+        return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)  
 
 # @csrf_exempt
 # def delete_kontainer(request):
