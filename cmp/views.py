@@ -103,16 +103,39 @@ def create_template(request):
         new_image_ref = f"{repository}:{tag}"
 
         # Perintah untuk melakukan docker pull dengan image reference yang sudah dimodifikasi
-        docker_cmd = f"docker pull {new_image_ref} && docker tag {new_image_ref} {nama_template}"
+        docker_pull_cmd = f"docker pull {new_image_ref}"
 
-        # Menjalankan perintah menggunakan subprocess
-        subprocess.run(docker_cmd, shell=True)
+        # Menjalankan perintah docker pull menggunakan subprocess
+        subprocess.run(docker_pull_cmd, shell=True)
 
-        # Mengirimkan respon ke klien
-        response = {
-            'status': 'success',
-            'message': 'Template created successfully.'
-        }
+        # Perintah untuk mendapatkan ID gambar berdasarkan image reference
+        docker_image_id_cmd = f"docker images --format '{{.ID}}' {new_image_ref}"
+
+        # Menjalankan perintah docker images untuk mendapatkan ID gambar
+        result = subprocess.run(docker_image_id_cmd, shell=True, capture_output=True, text=True)
+
+        # Memeriksa apakah output result.stdout berisi ID gambar yang valid
+        if result.stdout.strip():
+            # Mendapatkan ID gambar yang sesuai
+            image_id = result.stdout.strip()
+
+            # Perintah untuk melakukan docker tag dengan nama_template
+            docker_tag_cmd = f"docker tag {image_id} {nama_template}"
+
+            # Menjalankan perintah docker tag menggunakan subprocess
+            subprocess.run(docker_tag_cmd, shell=True)
+
+            # Mengirimkan respon ke klien
+            response = {
+                'status': 'success',
+                'message': 'Template created successfully.'
+            }
+        else:
+            # Jika ID gambar tidak ditemukan
+            response = {
+                'status': 'error',
+                'message': 'Failed to create template. Image ID not found.'
+            }
 
         return JsonResponse(response)
 
