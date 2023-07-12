@@ -99,11 +99,9 @@ def create_template(request):
         repository, tag = link_template.split(':')
         repository = repository.lower()  # Converting repository name to lowercase
 
-        # Creating the new image reference with lowercase repository name
-        new_image_ref = f"{repository}:{tag}"
+        # Perintah untuk melakukan docker pull dengan tag yang diubah sesuai nama_template
+        docker_cmd = f"docker pull {repository}:{nama_template}"
 
-        # Perintah untuk melakukan docker pull dengan image reference yang sudah dimodifikasi
-        docker_cmd = f"docker pull --name {nama_template} {new_image_ref} "
 
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
