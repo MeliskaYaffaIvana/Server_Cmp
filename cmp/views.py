@@ -149,6 +149,7 @@ def delete_template(request):
         return JsonResponse({'message': 'Data diterima'}, status=200)
     else:
         # Metode HTTP tidak diizinkan
+        return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)
 
 # @csrf_exempt
 # def delete_kontainer(request):
