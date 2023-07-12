@@ -96,20 +96,27 @@ def create_template(request):
         link_template = payload.get('link_template')
 
         # Parsing the repository and tag from the link
-        repository, _ = link_template.split(':')
+        repository, tag = link_template.split(':')
         repository = repository.lower()  # Converting repository name to lowercase
 
-        # Perintah untuk melakukan docker pull tanpa menyertakan tag khusus
-        docker_pull_cmd = f"docker pull {repository}"
+        # Creating the new image reference with lowercase repository name
+        new_image_ref = f"{repository}:{tag}"
 
+        # # Perintah untuk melakukan docker pull dengan image reference yang sudah dimodifikasi
+        # docker_cmd = f"docker pull {new_image_ref} && docker tag {new_image_ref} {nama_template}"
+        # Perintah untuk melakukan docker pull tanpa menyertakan tag khusus
+        docker_pull_cmd = f"docker pull {link_template}"
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_pull_cmd, shell=True)
 
         # Perintah untuk memberi nama repository sesuai dengan nama_template
-        docker_tag_cmd = f"docker tag {repository} {nama_template}"
+        docker_tag_cmd = f"docker tag {link_template} {repository}:{nama_template}"
 
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_tag_cmd, shell=True)
+
+        # # Menjalankan perintah menggunakan subprocess
+        # subprocess.run(docker_cmd, shell=True)
 
         # Mengirimkan respon ke klien
         response = {
@@ -125,7 +132,6 @@ def create_template(request):
             'message': 'Invalid request method.'
         }
         return JsonResponse(response)
-
 
 
 @csrf_exempt
