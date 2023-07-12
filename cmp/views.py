@@ -134,13 +134,13 @@ def delete_template(request):
         # Mengambil daftar images dari server
         cmd_images = 'docker images --format "{{.ID}}:{{.Repository}}:{{.Tag}}"'
         result_images = subprocess.run(cmd_images, shell=True, capture_output=True, text=True)
-        print(result_images)
+        print("result image", result_images)
 
         if result_images.returncode != 0:
             return JsonResponse({'error': 'Failed to get images'}, status=500)
 
         images = result_images.stdout.strip().split('\n')
-        print(images)
+        print("imagesnya ",images)
 
         for image in images:
             image_id, image_repository, image_tag = image.split(':')
@@ -149,8 +149,8 @@ def delete_template(request):
                 # Cek apakah ada repository lain yang menggunakan image_id
                 cmd_check = f'docker images --format "{{{{.Repository}}}}" --filter "before={image_id}"'
                 result_check = subprocess.run(cmd_check, shell=True, capture_output=True, text=True)
-                print(cmd_check)
-                print(result_check)
+                print("cmd cek", cmd_check)
+                print("result cek ",result_check)
 
                 if result_check.returncode != 0:
                     return JsonResponse({'error': 'Failed to check image usage'}, status=500)
@@ -161,7 +161,7 @@ def delete_template(request):
                     # Hapus image dengan image_id
                     cmd_delete = f'docker rmi {image_id}'
                     subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
-                    print(cmd_delete)
+                    print("cmd hapus",cmd_delete)
 
         return JsonResponse({'message': 'Template deletion completed'}, status=200)
 
