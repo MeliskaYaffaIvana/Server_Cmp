@@ -127,33 +127,42 @@ def create_template(request):
 @csrf_exempt
 def delete_template(request):
     if request.method == 'POST':
-        # Menerima data dari client
+        # Menerima data dari klien
         payload = json.loads(request.body)
         nama_template = payload.get('nama_template')
 
-        # Menemukan repository images dengan tag "latest" yang tidak sesuai dengan nama_template
-        cmd = 'docker images'
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-        print(cmd)
-        print(result)
-        # Memeriksa kesesuaian repository dengan nama_template
-        if result.stdout.strip():
-            for line in result.stdout.strip().split('\n'):
-                repo_id, repo_name, repo_tag = line.split(':')
-                if repo_name != nama_template and repo_tag == 'latest':
-                    # Menghapus repository dengan ID yang tidak sesuai
-                    cmd_hapus = ['docker', 'rmi', repo_id]
-                    subprocess.run(cmd_hapus, capture_output=True, text=True)  
-                    print(repo_name)
-                    print(repo_id)
-                    print(repo_tag)
-                    print(cmd)
-        
-        # Respon sukses
-        return JsonResponse({'message': 'Data diterima'}, status=200)
+        # Mengambil daftar images dari server
+        cmd_images = 'docker images --format "{{.ID}}:{{.Repository}}:{{.Tag}}"'
+        result_images = subprocess.run(cmd_images, shell=True, capture_output=True, text=True)
+
+        if result_images.returncode != 0:
+            return JsonResponse({'error': 'Failed to get images'}, status=500)
+
+        images = result_images.stdout.strip().split('\n')
+
+        for image in images:
+            image_id, image_repository, image_tag = image.split(':')
+
+            if image_repository != nama_template:
+                # Cek apakah ada repository lain yang menggunakan image_id
+                cmd_check = f'docker images --format "{{{{.Repository}}}}" --filter "before={image_id}"'
+                result_check = subprocess.run(cmd_check, shell=True, capture_output=True, text=True)
+
+                if result_check.returncode != 0:
+                    return JsonResponse({'error': 'Failed to check image usage'}, status=500)
+
+                repositories = result_check.stdout.strip().split('\n')
+
+                if nama_template not in repositories:
+                    # Hapus image dengan image_id
+                    cmd_delete = f'docker rmi {image_id}'
+                    subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
+
+        return JsonResponse({'message': 'Template deletion completed'}, status=200)
+
     else:
-        # Metode HTTP tidak diizinkan
-        return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 
 # @csrf_exempt
 # def delete_kontainer(request):
