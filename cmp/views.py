@@ -134,36 +134,37 @@ def delete_template(request):
         # Menemukan repository images berdasarkan nama_template
         cmd = 'docker images --format "{{.Repository}}"'
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-        print(result)
 
         # Memeriksa kesesuaian repository images dengan nama_template
-        if nama_template not in result.stdout.split('\n'):
-            # Mencari ID template berdasarkan nama_repository
-            cmd_id = 'docker images --format "{{.ID}}" | grep "{}"'.format(nama_template)
-            result_id = subprocess.run(cmd_id, shell=True, capture_output=True, text=True)
-            print(result_id)
+        for repo in result.stdout.split('\n'):
+            if repo != nama_template:
+                # Mencari ID template berdasarkan nama_repository
+                cmd_id = 'docker images --format "{{.ID}}" | grep "{}"'.format(repo)
+                result_id = subprocess.run(cmd_id, shell=True, capture_output=True, text=True)
 
-            # Memeriksa apakah output result_id.stdout berisi ID template yang valid
-            if result_id.stdout.strip() != '':
-                # Mendapatkan ID template yang sesuai
-                id_template = result_id.stdout.strip()
+                # Memeriksa apakah output result_id.stdout berisi ID template yang valid
+                if result_id.stdout.strip() != '':
+                    # Mendapatkan ID template yang sesuai
+                    id_template = result_id.stdout.strip()
 
-                # Mendapatkan nama repository images yang sesuai dengan ID template
-                cmd_repo_name = 'docker inspect --format "{{index .RepoTags 0}}" {}'.format(id_template)
-                result_repo_name = subprocess.run(cmd_repo_name, shell=True, capture_output=True, text=True)
-                print(result_repo_name)
+                    # Memeriksa apakah ID template memiliki nama repository atau tag yang berbeda dengan yang di database
+                    cmd_repo_name = 'docker inspect --format "{{index .RepoTags 0}}" {}'.format(id_template)
+                    result_repo_name = subprocess.run(cmd_repo_name, shell=True, capture_output=True, text=True)
+                    if result_repo_name.stdout.strip() != nama_template:
+                        # Jalankan perintah hapus template sesuai dengan ID template
+                        cmd_repo_tags = 'docker inspect --format "{{.RepoTags}}" {}'.format(id_template)
+                        result_repo_tags = subprocess.run(cmd_repo_tags, shell=True, capture_output=True, text=True)
+                        repo_tags = result_repo_tags.stdout.strip().replace('[', '').replace(']', '').replace("'", "").split(', ')
+                        if nama_template not in repo_tags:
+                            cmd_hapus = ['docker', 'rmi', id_template]
+                            subprocess.run(cmd_hapus, capture_output=True, text=True)
 
-                # Menghapus template jika ada kesesuaian yang tidak sesuai dengan database
-                if result_repo_name.stdout.strip() != nama_template and result_id.stdout.strip() not in result_repo_name.stdout.strip():
-                    # Jalankan perintah hapus template sesuai dengan ID template
-                    cmd_hapus = ['docker', 'rmi', result_id.stdout.strip()]
-                    subprocess.run(cmd_hapus, capture_output=True, text=True)
         # Respon sukses
         return JsonResponse({'message': 'Data diterima'}, status=200)
     else:
         # Metode HTTP tidak diizinkan
         return JsonResponse({'error': 'Metode HTTP tidak diizinkan'}, status=405)
-
+    
 # @csrf_exempt
 # def delete_kontainer(request):
 #     if request.method == 'POST':
