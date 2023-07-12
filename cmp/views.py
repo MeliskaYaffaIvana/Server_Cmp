@@ -132,9 +132,11 @@ def delete_template(request):
         nama_template = payload.get('nama_template')
         print("nama temp",nama_template)
         # Menemukan repository images berdasarkan nama_template
-        cmd = 'docker images --format "{{.Repository}}"'
+        # Menemukan repository images berdasarkan nama_template
+        cmd = 'docker images --format "{{.Repository}}" --filter "reference!={}"'.format(nama_template)
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         print("result", result)
+
         # Memeriksa kesesuaian repository images dengan nama_template
         for repo in result.stdout.split('\n'):
             if repo != nama_template:
