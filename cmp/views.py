@@ -159,7 +159,7 @@ def delete_template(request):
                 print(repositories)
                 if nama_template not in repositories:
                     # Hapus image dengan image_id
-                    cmd_delete = f'docker rmi {image_id}'
+                    cmd_delete = f'docker rmi -f {image_id}'
                     subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
                     print("cmd hapus",cmd_delete)
 
