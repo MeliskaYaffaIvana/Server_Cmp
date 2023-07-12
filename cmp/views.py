@@ -143,10 +143,13 @@ def delete_template(request):
         for image in images:
             repo_tag = image.split(':')
             repository = repo_tag[0]
+            tag = repo_tag[1]
 
-            if repository != nama_template:
-                cmd_delete = f'docker rmi {image}'
-                subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
+            if repository == nama_template:
+                continue  # Melanjutkan ke iterasi berikutnya jika nama repository sama dengan nama_template
+
+            cmd_delete = f'docker rmi {repository}:{tag}'
+            subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
 
         return JsonResponse({'message': 'Template deletion completed'}, status=200)
 
