@@ -155,7 +155,7 @@ def delete_template(request):
 
 
 
-def delete_container(request):
+def delete_kontainer(request):
     if request.method == 'POST':
         payload = request.POST
         id_kontainer = payload.get('id_kontainer')
