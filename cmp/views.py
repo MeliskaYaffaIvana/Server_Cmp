@@ -132,7 +132,7 @@ def delete_template(request):
         nama_template = payload.get('nama_template')
 
         # Menemukan repository images dengan tag "latest" yang tidak sesuai dengan nama_template
-        cmd = 'docker images --format "{{.ID}}:{{.Repository}}:{{.Tag}}" --filter "reference=:latest"'
+        cmd = 'docker images'
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         print(cmd)
         print(result)
@@ -147,7 +147,7 @@ def delete_template(request):
                     print(repo_name)
                     print(repo_id)
                     print(repo_tag)
-                    print(cmd_hapus)
+                    print(cmd)
         
         # Respon sukses
         return JsonResponse({'message': 'Data diterima'}, status=200)
