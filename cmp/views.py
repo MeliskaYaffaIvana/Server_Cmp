@@ -132,27 +132,20 @@ def delete_template(request):
         nama_template = payload.get('nama_template')
         print("nama temp",nama_template)
         # Menemukan repository images berdasarkan nama_template
-        # Menemukan repository images berdasarkan nama_template
-        cmd = 'docker images --format "{{.Repository}}" --filter "reference!={}"'.format(nama_template)
+        cmd = 'docker images --format "{{.Repository}}:{{.Tag}}"'
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         print("result", result)
 
+        # Memisahkan repository dan tag
+        repo_tags = result.stdout.strip().split('\n')
+        repos = [rt.split(':')[0] for rt in repo_tags]
+
         # Memeriksa kesesuaian repository images dengan nama_template
-        for repo in result.stdout.split('\n'):
+        for repo in repos:
             if repo != nama_template:
-                # Mencari ID template berdasarkan nama_repository
-                cmd_id = 'docker images --format "{{.ID}}" --filter "reference={}"'.format(repo)
-                result_id = subprocess.run(cmd_id, shell=True, capture_output=True, text=True)
-                print("result id",result_id)
-                # Memeriksa apakah output result_id.stdout berisi ID template yang valid
-                if result_id.stdout.strip() != '':
-                    # Mendapatkan ID template yang sesuai
-                    id_template = result_id.stdout.strip()
-                    print("id templ",id_template)
-                    # Jalankan perintah hapus template sesuai dengan ID template
-                    cmd_hapus = ['docker', 'rmi', id_template]
-                    subprocess.run(cmd_hapus, capture_output=True, text=True)
-                    print("cmd hapus", cmd_hapus)
+                # Menghapus template berdasarkan nama repository
+                cmd_hapus = ['docker', 'rmi', repo]
+                subprocess.run(cmd_hapus, capture_output=True, text=True)
         # Respon sukses
         return JsonResponse({'message': 'Data diterima'}, status=200)
     else:
