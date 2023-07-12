@@ -158,7 +158,7 @@ def delete_template(request):
 def delete_kontainer(request):
     if request.method == 'POST':
         payload = request.POST
-        id_kontainer = payload.get('id_kontainer')
+        id = payload.get('id')
 
         # Mengambil daftar kontainer dari server
         cmd_containers = 'docker ps -a --format "{{.ID}}:{{.Names}}"'
@@ -172,7 +172,7 @@ def delete_kontainer(request):
         for container in containers:
             container_id, container_name = container.split(':')
 
-            if container_name != id_kontainer:
+            if container_name != id:
                 # Hapus kontainer dengan ID yang berbeda
                 cmd_delete = f'docker rm {container_id}'
                 subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
