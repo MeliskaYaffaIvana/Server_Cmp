@@ -99,20 +99,11 @@ def create_template(request):
         repository, tag = link_template.split(':')
         repository = repository.lower()  # Converting repository name to lowercase
 
-        # Mengecek apakah repository dengan nama yang sama sudah ada
-        cmd_check_repo = f'docker images --format "{{{{.Repository}}}}" --filter "reference={repository}:*"'
-        result_check_repo = subprocess.run(cmd_check_repo, shell=True, capture_output=True, text=True)
-
-        if result_check_repo.returncode != 0:
-            return JsonResponse({'error': 'Failed to check repository existence'}, status=500)
-
-        existing_repositories = result_check_repo.stdout.strip().split('\n')
-
-        if existing_repositories:
-            return JsonResponse({'error': 'Repository already exists'}, status=400)
+        # Creating the new image reference with lowercase repository name
+        new_image_ref = f"{repository}:{tag}"
 
         # Perintah untuk melakukan docker pull dengan image reference yang sudah dimodifikasi
-        docker_cmd = f"docker pull {link_template} && docker tag {link_template} {repository}:{tag}"
+        docker_cmd = f"docker pull {new_image_ref} && docker tag {new_image_ref} {nama_template}"
 
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
@@ -133,7 +124,6 @@ def create_template(request):
         return JsonResponse(response)
 
 
-
 @csrf_exempt
 def delete_template(request):
     if request.method == 'POST':
@@ -142,7 +132,7 @@ def delete_template(request):
         nama_template = payload.get('nama_template')
 
         # Mengambil daftar images dari server
-        cmd_images = 'docker images --format "{{.Repository}}:{{.Tag}}"'
+        cmd_images = 'docker images --format "{{.Repository}}:{{.Tag}}:{{.ID}}"'
         result_images = subprocess.run(cmd_images, shell=True, capture_output=True, text=True)
 
         if result_images.returncode != 0:
@@ -151,15 +141,27 @@ def delete_template(request):
         images = result_images.stdout.strip().split('\n')
 
         for image in images:
-            repo_tag = image.split(':')
-            repository = repo_tag[0]
-            tag = repo_tag[1]
+            repo_tag_id = image.split(':')
+            repository = repo_tag_id[0]
+            tag = repo_tag_id[1]
+            image_id = repo_tag_id[2]
 
             if repository == nama_template:
                 continue  # Melanjutkan ke iterasi berikutnya jika nama repository sama dengan nama_template
 
-            cmd_delete = f'docker rmi {repository}:{tag}'
-            subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
+            # Mengecek apakah id images yang berbeda dengan nama_template digunakan oleh repository lain
+            cmd_check = f'docker images --format "{{{{.Repository}}}}" --filter "before={image_id}"'
+            result_check = subprocess.run(cmd_check, shell=True, capture_output=True, text=True)
+
+            if result_check.returncode != 0:
+                return JsonResponse({'error': 'Failed to check image usage'}, status=500)
+
+            repositories = result_check.stdout.strip().split('\n')
+
+            if nama_template not in repositories:
+                # Hapus image dengan image_id
+                cmd_delete = f'docker rmi -f {image_id}'
+                subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
 
         return JsonResponse({'message': 'Template deletion completed'}, status=200)
 
