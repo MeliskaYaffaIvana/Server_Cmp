@@ -153,13 +153,11 @@ def delete_template(request):
                 result_repo_name = subprocess.run(cmd_repo_name, shell=True, capture_output=True, text=True)
                 print(result_repo_name)
 
-                # Membandingkan nama repository images dengan nama_template
-                if result_repo_name.stdout.strip() != nama_template:
+                # Menghapus template jika ada kesesuaian yang tidak sesuai dengan database
+                if result_repo_name.stdout.strip() != nama_template and result_id.stdout.strip() not in result_repo_name.stdout.strip():
                     # Jalankan perintah hapus template sesuai dengan ID template
-                    cmd_hapus = 'docker rmi {}'.format(id_template)
-                    subprocess.run(cmd_hapus, shell=True, capture_output=True, text=True)
-                    print(cmd_hapus)
-
+                    cmd_hapus = ['docker', 'rmi', result_id.stdout.strip()]
+                    subprocess.run(cmd_hapus, capture_output=True, text=True)
         # Respon sukses
         return JsonResponse({'message': 'Data diterima'}, status=200)
     else:
