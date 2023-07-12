@@ -154,7 +154,7 @@ def delete_template(request):
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
-
+@csrf_exempt
 def delete_kontainer(request):
     if request.method == 'POST':
         payload = request.POST
