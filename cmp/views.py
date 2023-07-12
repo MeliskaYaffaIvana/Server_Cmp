@@ -123,7 +123,6 @@ def create_template(request):
         }
         return JsonResponse(response)
 
-
 @csrf_exempt
 def delete_template(request):
     if request.method == 'POST':
@@ -132,7 +131,7 @@ def delete_template(request):
         nama_template = payload.get('nama_template')
 
         # Mengambil daftar images dari server
-        cmd_images = 'docker images --format "{{.Repository}}:{{.Tag}}"'
+        cmd_images = 'docker images --format "{{.ID}}:{{.Repository}}:{{.Tag}}"'
         result_images = subprocess.run(cmd_images, shell=True, capture_output=True, text=True)
 
         if result_images.returncode != 0:
@@ -140,15 +139,44 @@ def delete_template(request):
 
         images = result_images.stdout.strip().split('\n')
 
+        # Menyimpan ID images yang akan dicek
+        ids_to_check = set()
+
+        # Menyimpan ID images yang akan dihapus
+        ids_to_delete = set()
+
         for image in images:
-            repo_tag = image.split(':')
-            repository = repo_tag[0]
-            tag = repo_tag[1]
+            image_id, image_repository, image_tag = image.split(':')
 
-            if repository == nama_template:
-                continue  # Melanjutkan ke iterasi berikutnya jika nama repository sama dengan nama_template
+            if image_repository != nama_template:
+                # Menambahkan ID images ke set yang akan dicek
+                ids_to_check.add(image_id)
 
-            cmd_delete = f'docker rmi {repository}:{tag}'
+        # Cek repo tag untuk setiap ID images yang akan dicek
+        for image_id in ids_to_check:
+            cmd_repo_tags = f'docker images --format "{{{{.Repository}}}}:{{{{.Tag}}}}" --filter "id={image_id}"'
+            result_repo_tags = subprocess.run(cmd_repo_tags, shell=True, capture_output=True, text=True)
+
+            if result_repo_tags.returncode != 0:
+                return JsonResponse({'error': 'Failed to get repository tags'}, status=500)
+
+            repo_tags = result_repo_tags.stdout.strip().split('\n')
+
+            is_template_in_use = False
+            for repo_tag in repo_tags:
+                repo = repo_tag.split(':')[0]
+
+                if repo == nama_template:
+                    is_template_in_use = True
+                    break
+
+            if not is_template_in_use:
+                # Jika tidak ada repo tag yang sama dengan nama_template, tambahkan ID images ke set yang akan dihapus
+                ids_to_delete.add(image_id)
+
+        # Hapus images dengan ID yang berbeda dan tidak memiliki repo tag yang sama dengan nama_template
+        for image_id in ids_to_delete:
+            cmd_delete = f'docker rmi {image_id}'
             subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
 
         return JsonResponse({'message': 'Template deletion completed'}, status=200)
