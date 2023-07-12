@@ -99,27 +99,20 @@ def create_template(request):
         repository, tag = link_template.split(':')
         repository = repository.lower()  # Converting repository name to lowercase
 
-        # Mengecek apakah tag adalah "latest"
-        if tag == "latest":
-            # Creating the new image reference with lowercase repository name
-            new_image_ref = f"{repository}:{tag}"
+        # Creating the new image reference with lowercase repository name
+        new_image_ref = f"{repository}:{tag}"
 
-            # Perintah untuk melakukan docker pull dengan image reference yang sudah dimodifikasi
-            docker_cmd = f"docker pull {new_image_ref} && docker tag {new_image_ref} {nama_template}"
+        # Perintah untuk melakukan docker pull dengan image reference yang sudah dimodifikasi
+        docker_cmd = f"docker pull {new_image_ref} && docker tag {new_image_ref} {nama_template}"
 
-            # Menjalankan perintah menggunakan subprocess
-            subprocess.run(docker_cmd, shell=True)
+        # Menjalankan perintah menggunakan subprocess
+        subprocess.run(docker_cmd, shell=True)
 
-            # Mengirimkan respon ke klien
-            response = {
-                'status': 'success',
-                'message': 'Template created successfully.'
-            }
-        else:
-            response = {
-                'status': 'error',
-                'message': 'Invalid image tag. Only "latest" tag is allowed.'
-            }
+        # Mengirimkan respon ke klien
+        response = {
+            'status': 'success',
+            'message': 'Template created successfully.'
+        }
 
         return JsonResponse(response)
 
