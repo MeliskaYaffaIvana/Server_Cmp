@@ -182,7 +182,7 @@ def delete_kontainer(request):
     else:
          return JsonResponse({'error': 'Invalid request method'})
     
-
+@csrf_exempt
 def execute_command(request):
     if request.method == 'POST':
         data = json.loads(request.body)
