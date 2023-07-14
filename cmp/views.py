@@ -147,7 +147,7 @@ def delete_template(request):
             repository_tag = image_parts[1]
 
             if deleted_template_link in repository_tag:
-                cmd_delete = f'docker rmi {image_id}'
+                cmd_delete = f'docker rmi -f {image_id}'
                 subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
 
         return JsonResponse({'message': 'Template deletion completed'}, status=200)
