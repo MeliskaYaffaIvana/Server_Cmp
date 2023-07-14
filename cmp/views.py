@@ -181,3 +181,20 @@ def delete_kontainer(request):
 
     else:
          return JsonResponse({'error': 'Invalid request method'})
+    
+@csrf_exempt
+def execute_command(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        container_id = data.get('containerId')
+        if container_id:
+            try:
+                command = ['docker', 'exec', '-it', container_id, '/bin/bash']
+                result = subprocess.check_output(command, stderr=subprocess.STDOUT)
+                return HttpResponse(json.dumps({'success': True}), content_type='application/json')
+            except subprocess.CalledProcessError as e:
+                return HttpResponse(json.dumps({'success': False}), content_type='application/json')
+        else:
+            return HttpResponse(json.dumps({'success': False}), content_type='application/json')
+    else:
+        return HttpResponse(status=405)
