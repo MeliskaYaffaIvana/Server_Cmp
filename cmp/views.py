@@ -129,10 +129,11 @@ def delete_template(request):
     if request.method == 'POST':
         # Menerima data dari klien
         payload = json.loads(request.body)
-        nama_template = payload.get('nama_template')
+        deleted_template_id = payload.get('deleted_template_id')
+        deleted_template_link = payload.get('deleted_template_link')
 
         # Mengambil daftar images dari server
-        cmd_images = 'docker images --format "{{.Repository}}:{{.Tag}}"'
+        cmd_images = 'docker images --format "{{.ID}} {{.Repository}}:{{.Tag}}"'
         result_images = subprocess.run(cmd_images, shell=True, capture_output=True, text=True)
 
         if result_images.returncode != 0:
@@ -141,18 +142,18 @@ def delete_template(request):
         images = result_images.stdout.strip().split('\n')
 
         for image in images:
-            repo_tag = image.split(':')
-            repository = repo_tag[0]
+            image_parts = image.split(' ')
+            image_id = image_parts[0]
+            repository_tag = image_parts[1]
 
-            if repository != nama_template:
-                cmd_delete = f'docker rmi {image}'
+            if deleted_template_link in repository_tag:
+                cmd_delete = f'docker rmi {image_id}'
                 subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
 
         return JsonResponse({'message': 'Template deletion completed'}, status=200)
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
-
 
 @csrf_exempt
 def delete_kontainer(request):
