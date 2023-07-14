@@ -25,5 +25,4 @@ urlpatterns = [
     path('api/update_bolehkan_container/', views.update_bolehkan, name='update_bolehkan'),
     path('api/delete_template/', views.delete_template, name='delete_template'),
     path('api/delete_kontainer/', views.delete_kontainer, name='delete_kontainer'),
-    path('api/executeCommand/', views.execute_command, name='execute_command'),
 ]
