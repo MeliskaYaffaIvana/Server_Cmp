@@ -191,14 +191,12 @@ def execute_command(request):
             try:
                 command = ['docker', 'exec', '-it', container_id, '/bin/bash']
                 result = subprocess.check_output(command, stderr=subprocess.STDOUT)
-                response_data = {'success': True}
+                print (command)
+                print(result)
+                return HttpResponse(json.dumps({'success': True}), content_type='application/json')
             except subprocess.CalledProcessError as e:
-                response_data = {'success': False}
+                return HttpResponse(json.dumps({'success': False}), content_type='application/json')
         else:
-            response_data = {'success': False}
-
-        response = HttpResponse(json.dumps(response_data), content_type='application/json')
-        response['Access-Control-Allow-Origin'] = '*'  # Izinkan semua domain
-        return response
+            return HttpResponse(json.dumps({'success': False}), content_type='application/json')
     else:
         return HttpResponse(status=405)
