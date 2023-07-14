@@ -30,6 +30,9 @@ ALLOWED_HOSTS = ['10.0.0.21', 'localhost', '127.0.0.1']
 # CORS_ORIGIN_ORIGINS = [
 #     'http://10.0.0.19',
 # ]
+CORS_ORIGIN_WHITELIST = [
+    'http://10.0.0.19',
+]
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_METHODS = [
     'DELETE',
