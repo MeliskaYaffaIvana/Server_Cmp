@@ -161,25 +161,15 @@ def delete_kontainer(request):
         payload = request.POST
         id = payload.get('id')
 
-        # Mengambil daftar kontainer dari server
-        cmd_containers = 'docker ps -a --format "{{.ID}}:{{.Names}}"'
-        result_containers = subprocess.run(cmd_containers, shell=True, capture_output=True, text=True)
+        # Menghapus kontainer dengan menggunakan perintah docker rm
+        cmd_delete = f'docker rm {id}'
+        result_delete = subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
 
-        if result_containers.returncode != 0:
-            return JsonResponse({'error': 'Failed to get containers'})
-
-        containers = result_containers.stdout.strip().split('\n')
-
-        for container in containers:
-            container_id, container_name = container.split(':')
-
-            if container_name != id:
-                # Hapus kontainer dengan ID yang berbeda
-                cmd_delete = f'docker rm {container_id}'
-                subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
+        if result_delete.returncode != 0:
+            return JsonResponse({'error': 'Failed to delete container'})
 
         return JsonResponse({'message': 'Container deletion completed'})
 
     else:
-         return JsonResponse({'error': 'Invalid request method'})
+        return JsonResponse({'error': 'Invalid request method'})
     
