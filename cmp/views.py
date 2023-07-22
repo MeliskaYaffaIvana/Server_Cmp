@@ -72,6 +72,12 @@ def create_container(request):
         env_template = payload.get('env_template')
         env_kontainer = payload.get('env_kontainer')
 
+        # Menggabungkan env_template dan env_kontainer menjadi satu dictionary
+        combined_env = {**env_template, **env_kontainer}
+
+        # Mengubah dictionary menjadi JSON string
+        combined_env_str = json.dumps(combined_env)
+
         # Mendapatkan path folder user berdasarkan kategori
         user_folder = f"/nfs/{nim}/{kategori}"
 
@@ -79,20 +85,7 @@ def create_container(request):
         os.makedirs(user_folder, exist_ok=True)
 
         # Perintah untuk membuat kontainer Docker
-        docker_cmd = f"docker run -d --name {id} -p {port_kontainer}:{port} -v {user_folder}:{default_dir}"
-
-        # Cek apakah kategori adalah "database" dan env_kontainer tidak kosong
-        if kategori == "database" and env_kontainer:
-            # Ambil nilai env_template dan env_kontainer secara terpisah
-            usertmp = env_template.get('usertmp', '')
-            passtmp = env_template.get('passtmp', '')
-            rootpasstmp = env_template.get('rootpasstmp', '')
-            username = env_kontainer.get('username', '')
-            password = env_kontainer.get('password', '')
-            rootpass = env_kontainer.get('rootpass', '')
-
-            # Tambahkan setting username, password, dan rootpass ke dalam perintah docker_cmd
-            docker_cmd += f" -e usertmp={username} -e passtmp={password} -e rootpasstmp={rootpass}"
+        docker_cmd = f"docker run -d --name {id} -p {port_kontainer}:{port} -v {user_folder}:{default_dir} -e ENV_CONFIG='{combined_env_str}' {nama_template}"
 
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
