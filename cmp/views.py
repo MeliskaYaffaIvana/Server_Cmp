@@ -69,6 +69,8 @@ def create_container(request):
         port = payload.get('port')
         nim = payload.get('nim')
         kategori = payload.get('kategori')
+        env_template = payload.get('env_template')  # Pindahkan env_template di atas kategori
+        env_kontainer = payload.get('env_kontainer')
 
         # Mendapatkan path folder user berdasarkan kategori
         user_folder = f"/nfs/{nim}/{kategori}"
@@ -77,15 +79,26 @@ def create_container(request):
         os.makedirs(user_folder, exist_ok=True)
 
         # Perintah untuk membuat kontainer Docker
-        docker_cmd = f"docker run -d --name {id} -p {port_kontainer}:{port} -v {user_folder}:{default_dir} {nama_template}"
-        print (docker_cmd)
+        docker_cmd = f"docker run -d --name {id} -p {port_kontainer}:{port} -v {user_folder}:{default_dir}"
+
+        # Cek apakah kategori adalah "database" dan env_kontainer tidak kosong
+        if kategori == "database" and env_kontainer:
+            for key, value in env_template.items():
+                # Ambil nilai env_kontainer yang sesuai berdasarkan key dari env_template
+                kontainer_value = env_kontainer.get(key, '')
+                docker_cmd += f" -e {value}={kontainer_value}"
+
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
+
+        # Lanjutkan dengan operasi lainnya sesuai kebutuhan Anda
+        # ...
 
         return HttpResponse("Container created successfully.")
 
     else:
         return HttpResponse("Invalid request method.")
+
 
 @csrf_exempt
 def create_template(request):
