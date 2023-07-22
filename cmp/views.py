@@ -81,9 +81,9 @@ def create_container(request):
         # Cek apakah kategori adalah "database" dan env_kontainer tidak kosong
         if kategori == "database" and env_kontainer:
             docker_cmd = f"docker run -d --name {id} -p {port_kontainer}:{port} -v {user_folder}:{default_dir}"
-            docker_cmd += f" -e usertmp={env_kontainer.get('username', '')} -e passtmp={env_kontainer.get('password', '')} -e rootpasstmp={env_kontainer.get('rootpass', '')}"
+            docker_cmd += f" -e usertmp={env_kontainer.get('username', '')} -e passtmp={env_kontainer.get('password', '')} -e rootpasstmp={env_kontainer.get('rootpass', '')} {nama_template}"
         else:
-            docker_cmd = f"docker run -d --name {id} -p {port_kontainer}:{port} -v {user_folder}:{default_dir}"
+            docker_cmd = f"docker run -d --name {id} -p {port_kontainer}:{port} -v {user_folder}:{default_dir} {nama_template}"
 
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
