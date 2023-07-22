@@ -69,7 +69,7 @@ def create_container(request):
         port = payload.get('port')
         nim = payload.get('nim')
         kategori = payload.get('kategori')
-        env_template = payload.get('env_template')  # Pindahkan env_template di atas kategori
+        env_template = payload.get('env_template')
         env_kontainer = payload.get('env_kontainer')
 
         # Mendapatkan path folder user berdasarkan kategori
@@ -86,7 +86,7 @@ def create_container(request):
             for key, value in env_template.items():
                 # Ambil nilai env_kontainer yang sesuai berdasarkan key dari env_template
                 kontainer_value = env_kontainer.get(key, '')
-                docker_cmd += f" -e {value}={kontainer_value}"
+                docker_cmd += f" -e {key}={kontainer_value}"
 
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
