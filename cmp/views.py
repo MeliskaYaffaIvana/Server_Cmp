@@ -73,10 +73,15 @@ def create_container(request):
         env_kontainer = payload.get('env_kontainer')
 
         # Menggabungkan env_template dan env_kontainer menjadi satu dictionary
-        combined_env = {**env_template, **env_kontainer}
+        combined_env = {}
+        if env_template:
+            combined_env.update(env_template)
+        if env_kontainer:
+            combined_env.update(env_kontainer)
 
         # Mengubah dictionary menjadi JSON string
         combined_env_str = json.dumps(combined_env)
+
 
         # Mendapatkan path folder user berdasarkan kategori
         user_folder = f"/nfs/{nim}/{kategori}"
