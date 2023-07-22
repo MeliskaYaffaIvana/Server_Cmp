@@ -83,10 +83,16 @@ def create_container(request):
 
         # Cek apakah kategori adalah "database" dan env_kontainer tidak kosong
         if kategori == "database" and env_kontainer:
-            for key, value in env_template.items():
-                # Ambil nilai env_kontainer yang sesuai berdasarkan key dari env_template
-                kontainer_value = env_kontainer.get(key, '')
-                docker_cmd += f" -e {key}={kontainer_value}"
+            # Ambil nilai env_template dan env_kontainer secara terpisah
+            usertmp = env_template.get('usertmp', '')
+            passtmp = env_template.get('passtmp', '')
+            rootpasstmp = env_template.get('rootpasstmp', '')
+            username = env_kontainer.get('username', '')
+            password = env_kontainer.get('password', '')
+            rootpass = env_kontainer.get('rootpass', '')
+
+            # Tambahkan setting username, password, dan rootpass ke dalam perintah docker_cmd
+            docker_cmd += f" -e usertmp={username} -e passtmp={password} -e rootpasstmp={rootpass}"
 
         # Menjalankan perintah menggunakan subprocess
         subprocess.run(docker_cmd, shell=True)
