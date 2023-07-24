@@ -80,7 +80,7 @@ def create_container(request):
 
         # Cek apakah kategori adalah "database" dan env_kontainer tidak kosong
         if kategori == "database" and env_kontainer:
-            docker_cmd = f"docker run -d --name {id} -p {port_kontainer}:{port} -v {user_folder}:{default_dir}"
+            docker_cmd = f"docker run -it -d --name {id} -p {port_kontainer}:{port} -v {user_folder}:{default_dir}"
             docker_cmd += f" -e {env_template.get('usertmp', '')}={env_kontainer.get('username', '')} -e {env_template.get('passtmp', '')}={env_kontainer.get('password', '')} -e {env_template.get('rootpasstmp', '')}={env_kontainer.get('rootpass', '')} -e {env_template.get('dbtmp', '')}={env_kontainer.get('dbname', '')} --restart unless-stopped {nama_template}"
         else:
             docker_cmd = f"docker run -d --name {id} -p {port_kontainer}:{port} -v {user_folder}:{default_dir} --restart unless-stopped {nama_template}"
