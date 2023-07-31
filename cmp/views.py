@@ -169,10 +169,10 @@ def delete_template(request):
 def delete_kontainer(request):
     if request.method == 'POST':
         payload = request.POST
-        id = payload.get('id')
+        deleted_container_id = payload.get('deleted_container_id')
 
         # Menghapus kontainer dengan menggunakan perintah docker rm
-        cmd_delete = f'docker rm {id}'
+        cmd_delete = f'docker rm {deleted_container_id}'
         result_delete = subprocess.run(cmd_delete, shell=True, capture_output=True, text=True)
 
         if result_delete.returncode != 0:
